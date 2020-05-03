@@ -1,3 +1,5 @@
+// -*- mode: c++ -*-
+
 #ifndef RAY_H
 #define RAY_H
 
@@ -6,6 +8,8 @@
 struct ray {
     vec3 origin;
     vec3 dir;
+
+    ray(const vec3& origin, const vec3& dir): origin(origin), dir(dir) {}
 
     vec3 at(double t) const;
 };
