@@ -1,9 +1,11 @@
 #include <stdio.h>
 
-#include "vec3.h"
+#include "camera.h"
+#include "common.h"
+#include "hitlist.h"
 #include "ray.h"
 #include "sphere.h"
-#include "hitlist.h"
+#include "vec3.h"
 
 
 vec3 ray_color(const ray& r, const hitable& world)
@@ -20,14 +22,12 @@ vec3 ray_color(const ray& r, const hitable& world)
 
 int main()
 {
-    const int width  = 200;
-    const int height = 100;
+    const double aspect_ratio = 16.0 / 9.0;
+    const int width  = 384;
+    const int height = (int)(width / aspect_ratio);
+    const int num_samples_per_pixel = 100;
 
-    vec3 lower_left(-2.0, -1.0, -1.0);
-    vec3 horizontal(+4.0, +0.0, +0.0);
-    vec3 vertical(+0.0, +2.0, +0.0);
-    vec3 origin(+0.0, +0.0, +0.0);
-
+    camera cam;
     hitlist world;
     world.add(std::make_shared<sphere>(vec3(0.0, 0.0, -1.0), 0.5));
     world.add(std::make_shared<sphere>(vec3(0.0, -100.5, -1.0), 100.0));
@@ -35,13 +35,19 @@ int main()
     fprintf(stdout, "P3\n%d %d\n255\n", width, height);
     for (int y = height - 1; y >= 0; --y) {
         for (int x = 0; x < width; ++x) {
-            double u = (double)x / width;
-            double v = (double)y / height;
-            ray r(origin, lower_left + u * horizontal + v * vertical);
-            vec3 color = ray_color(r, world);
-            int ir = (int)(255.999 * color.r);
-            int ig = (int)(255.999 * color.g);
-            int ib = (int)(255.999 * color.b);
+            vec3 color(0.0, 0.0, 0.0);
+            for (int s = 0; s < num_samples_per_pixel; ++s) {
+                double u = (x + randf()) / (width  - 1);
+                double v = (y + randf()) / (height - 1);
+                ray r = cam.get_ray(u, v);
+                color = color + ray_color(r, world);
+            }
+            color.r = color.r / num_samples_per_pixel;
+            color.g = color.g / num_samples_per_pixel;
+            color.b = color.b / num_samples_per_pixel;
+            int ir = (int)(256 * clamp(color.r, 0.0, 0.999));
+            int ig = (int)(256 * clamp(color.g, 0.0, 0.999));
+            int ib = (int)(256 * clamp(color.b, 0.0, 0.999));
             fprintf(stdout, "%d %d %d\n", ir, ig, ib);
         }
     }
