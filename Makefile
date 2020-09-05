@@ -9,5 +9,8 @@ run: build
 build: main.cpp
 	$(CXX) $(CFLAGS) main.cpp -o rtc
 
+show: run
+	@ (open out.ppm > /dev/null 2>&1 & )
+
 clean:
 	$(RM) rtc out.ppm

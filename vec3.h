@@ -3,6 +3,7 @@
 #define VEC3_H
 
 #include <math.h>
+#include "common.h"
 
 
 struct vec3 {
@@ -32,6 +33,16 @@ struct vec3 {
         data[0] = x;
         data[1] = y;
         data[2] = z;
+    }
+
+    inline static
+    vec3 random() {
+        return vec3(randf(), randf(), randf());
+    }
+
+    inline static
+    vec3 random(double min, double max) {
+        return vec3(randf(min, max), randf(min, max), randf(min, max));
     }
 };
 
@@ -116,6 +127,15 @@ vec3 normalize(const vec3& v)
     } else {
         return v / n;
     }
+}
+
+inline
+vec3 random_unit_vector()
+{
+    double a = randf(0.0, 2 * M_PI);
+    double z = randf(-1.0, 1.0);
+    double r = sqrt(1.0 - z * z);
+    return vec3(r * cos(a), r * sin(a), z);
 }
 
 #endif /* VEC3_H */
